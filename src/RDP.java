@@ -1,1 +1,1 @@
- RDP(){}
+class RDP{}
