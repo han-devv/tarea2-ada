@@ -5,7 +5,7 @@ import java.nio.file.Paths;
 import java.util.*;
 
 class RDP{
-    float epsilon = 0.0F;
+    double epsilon = 0.0F;
     point[] data;
     FileControler fc = new FileControler();
 
@@ -79,7 +79,7 @@ class RDP{
                     System.out.printf("-- %s: ", "Ingrese el nuevo valor de ε");
                     do {
                         try {
-                            epsilon = sc.nextFloat();
+                            epsilon = sc.nextDouble();
                             System.out.println();
                             break;
                         } catch (InputMismatchException e) {
@@ -110,7 +110,7 @@ class RDP{
         }while(op!= 4);
     }
 
-    public static List<point> alg(List<point> points, float epsilon){
+    public static List<point> alg(List<point> points, double epsilon){
         if(points==null) return new ArrayList<>();
         if(points.size()<=2) return new ArrayList<>(points);
 
