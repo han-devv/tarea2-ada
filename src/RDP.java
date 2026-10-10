@@ -1,6 +1,4 @@
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.FileSystemException;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -25,7 +23,7 @@ class RDP{
             switch(op){
                 case 1->{
                     try{
-                        boolean flag = false;
+                        boolean flag = true;
                         do {
                             int index;
                             System.out.println();
