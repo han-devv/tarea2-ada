@@ -1,4 +1,6 @@
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -14,62 +16,60 @@ class RDP{
     void menu(){
         short op;
         do{
-            System.out.println("-- Welcome to the menu --");
-            System.out.printf("1. %s\n2. %s\n3. %s\n4. %s\n","Load Data form .txt", "Set ε", "Start the  Ramer–Douglas–Peucker algorithm", "Exit" );
-            System.out.print("-- Select an option: ");
+            System.out.println("-- Menu --");
+            System.out.printf("1. %s\n2. %s\n3. %s\n4. %s\n","Cargar datos de .txt", "Asignar valor de ε", "Iniciar el algoritmo de Ramer–Douglas–Peucker", "Salir" );
+            System.out.print("-- Ingrese la opción: ");
             Scanner sc = new Scanner(System.in);
             op = sc.nextShort();
             System.out.println();
             switch(op){
-                case 1->{
-                    try{
+                case 1-> {
+                    try {
                         boolean flag = true;
+                        Path path = Paths.get("Files");
+                        File file = new File(path.toAbsolutePath().toString());
+
                         do {
-                            int index;
                             System.out.println();
-                            System.out.println("-- Amount of points. --");
-                            System.out.printf("1. %s\n 2. %s\n 3. %s\n 4. %s\n 5. %s\n 6. %s\n", "1k points", "5k points", "10k points", "20k points0", "30k points", "50k points");
-                            System.out.printf("%s: ", "-- Select an option: ");
-                            index = sc.nextInt();
 
-                            switch (index) {
-                                case 1 -> {
-                                    data = fc.readData(Paths.get("1kdata.txt").toAbsolutePath().toString());
+                            if (file.exists() && file.isDirectory()) {
+                                int i = 0;
+                                int opt;
+                                System.out.println("-- Archivos en el sistema. --");
+                                File[] dir = file.listFiles();
+
+                                for (File f : dir) {
+                                    i++;
+                                    System.out.println(i + ". " + f.getName());
+                                }
+
+                                System.out.printf("%s: ", "Ingresa una opcion");
+                                opt = sc.nextInt() - 1;
+
+                                if (opt < 0 || opt >= dir.length) {
+                                    System.out.println("Ingrese una opción valida...");
+                                } else {
+                                    data = fc.readData(dir[opt]);
+
+                                    System.out.println("Datos cargados correctamente!");
+                                    System.out.println();
                                     flag = false;
                                 }
-                                case 2 -> {
-                                    data = fc.readData(Paths.get("5kdata.txt").toAbsolutePath().toString());
-                                    flag = false;
-                                }
-                                case 3 -> {
-                                    data = fc.readData(Paths.get("10kdata.txt").toAbsolutePath().toString());
-                                    flag = false;
-                                }
-                                case 4 -> {
-                                    data = fc.readData(Paths.get("20kdata.txt").toAbsolutePath().toString());
-                                    flag = false;
-                                }
-                                case 5 -> {
-                                    data = fc.readData(Paths.get("30kdata.txt").toAbsolutePath().toString());
-                                    flag = false;
-                                }
-                                case 6 -> {
-                                    data = fc.readData(Paths.get("50kdata.txt").toAbsolutePath().toString());
-                                    flag = false;
-                                }
-                                default -> {
-                                    System.out.println("Please select a valid option..");
-                                }
+                            } else {
+                                System.out.println("Error al buscar la carpeta 'Files'");
+                                return;
                             }
-                        }while(flag);
-
-                        System.out.println("Data loaded successfully!");
+                        } while (flag);
+                    } catch (IOException e) {
+                        System.out.println("Error al leer los datos...");
                         System.out.println();
-                    }catch( IOException e){
-                        System.out.println("Error while reading data...");
+                    } catch (InputMismatchException e) {
+                        System.out.println("OH HELL NAH ");
                         System.out.println();
-                    }catch (InputMismatchException e){
-                        System.out.println("OH HELL NAH");
+                        sc.nextLine();
+                    } catch (NullPointerException e) {
+                        System.out.println("No se encontró el directorio o No existe el archivo seleccionado");
+                        System.out.println();
                     }
                 }
 
@@ -90,20 +90,21 @@ class RDP{
                     try{
                         if (data==null || data.length==0){
                             System.out.println("No hay datos");
-                            break;
+                            System.out.println();
+                        }else {
+                            List<point> input = Arrays.asList(data);
+                            List<point> output = alg(input, epsilon);
+                            System.out.println("El algoritmo se ejecuto correctamente");
+                            System.out.println("Puntos originales: " + data.length);
+                            System.out.println("Puntos despues de optimizar: " + output.size());
                         }
-                        List<point> input = Arrays.asList(data);
-                        List<point> output = alg(input, epsilon);
-                        System.out.println("El algoritmo se ejecuto correctamente");
-                        System.out.println("Puntos originales: "+ data.length);
-                        System.out.println("Puntos despues de optimizar: "+ output.size());
                     }catch(Exception e){
                         System.out.println("Error, no se que paso");
                     }
                 }
 
-                case 4 -> {continue;}
-                default -> System.out.println("Invalid option");
+                case 4 -> {}
+                default -> System.out.println("Opción invalida");
             }
         }while(op!= 4);
     }
@@ -116,7 +117,7 @@ class RDP{
         int maxI = -1;
 
         for(int i=0 ; i<points.size()-1 ; i++){
-            double dist = distPerpendicular(points.get(0), points.get(points.size()-1), points.get(i)) ;
+            double dist = distPerpendicular(points.getFirst(), points.getLast(), points.get(i)) ;
             if(dist>maxDist){
                 maxDist=dist;
                 maxI = i;
@@ -131,8 +132,8 @@ class RDP{
             return res;
         }else{
             List<point> res = new ArrayList<>();
-            res.add(points.get(0));
-            res.add(points.get(points.size()-1));
+            res.add(points.getFirst());
+            res.add(points.getLast());
             return res;
         }
     }

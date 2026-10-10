@@ -6,10 +6,8 @@ import java.util.Scanner;
 
 public class FileControler {
 
-    point[] readData(String path) throws IOException {
+    point[] readData(File file) throws IOException {
         ArrayList<point> out = new ArrayList<point>();
-
-        File file = new File(path);
         Scanner sc = new Scanner(file).useDelimiter("\n");
 
         while(sc.hasNextLine()){
