@@ -17,7 +17,7 @@ class RDP{
         short op;
         do{
             System.out.println("-- Menu --");
-            System.out.printf("1. %s\n2. %s\n3. %s\n4. %s\n","Cargar datos de .txt", "Asignar valor de ε", "Iniciar el algoritmo de Ramer–Douglas–Peucker", "Salir" );
+            System.out.printf("1. %s\n2. %s\n3. %s\n4. %s\n","Cargar datos de archivo", "Asignar valor de ε", "Iniciar el algoritmo de Ramer–Douglas–Peucker", "Salir" );
             System.out.print("-- Ingrese la opción: ");
             Scanner sc = new Scanner(System.in);
             op = sc.nextShort();
