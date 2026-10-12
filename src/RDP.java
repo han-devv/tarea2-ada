@@ -74,14 +74,15 @@ class RDP{
                 }
 
                 case 2->{
-                    System.out.printf("-- %s: ", "Ingrese el nuevo valor de ε");
                     do {
+                        System.out.printf("-- %s: ", "Ingrese el nuevo valor de ε");
                         try {
                             epsilon = sc.nextDouble();
                             System.out.println();
                             break;
                         } catch (InputMismatchException e) {
-                            System.out.println("Prueba con coma... (0,0)");
+                            System.out.println("Entrada invalida... *Ejemplo de entrada valida: 0,01");
+                            sc.nextLine();
                         }
                     }while(true);
                 }
