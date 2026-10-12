@@ -1,5 +1,4 @@
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -7,7 +6,7 @@ import java.util.Scanner;
 public class FileControler {
 
     point[] readData(File file) throws IOException {
-        ArrayList<point> out = new ArrayList<point>();
+        ArrayList<point> out = new ArrayList<>();
         Scanner sc = new Scanner(file).useDelimiter("\n");
 
         while(sc.hasNextLine()){
@@ -19,6 +18,6 @@ public class FileControler {
                 out.add(new point(x, y));
             }
         }
-        return out.toArray(new point[out.size()]);
+        return out.toArray(new point[0]);
     }
 }
