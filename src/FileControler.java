@@ -12,10 +12,12 @@ public class FileControler {
 
         while(sc.hasNextLine()){
             String line = sc.nextLine().trim();
-            String[] data = line.split(",");
-            double x = Double.parseDouble(data[0]);
-            double y = Double.parseDouble(data[1]);
-            out.add(new point(x, y));
+            if(!line.contains("x,y")){
+                String[] data = line.split(",");
+                double x = Double.parseDouble(data[0]);
+                double y = Double.parseDouble(data[1]);
+                out.add(new point(x, y));
+            }
         }
         return out.toArray(new point[out.size()]);
     }
