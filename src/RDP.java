@@ -8,7 +8,7 @@ class RDP{
     double epsilon = 0.0F;
     point[] data;
     FileControler fc = new FileControler();
-
+    Scanner sc = new Scanner(System.in);
     public static void main(String[] args){
       new RDP().menu();
     }
@@ -17,9 +17,8 @@ class RDP{
         short op;
         do{
             System.out.println("-- Menu --");
-            System.out.printf("1. %s\n2. %s\n3. %s\n4. %s\n","Cargar datos de archivo", "Asignar valor de ε", "Iniciar el algoritmo de Ramer–Douglas–Peucker", "Salir" );
+            System.out.printf("1. %s\n2. %s\n3. %s\n4. %s\n5. %s\n","Cargar datos de archivo", "Asignar valor de ε", "Iniciar el algoritmo de Ramer–Douglas–Peucker","Realizar Simulación", "Salir" );
             System.out.print("-- Ingrese la opción: ");
-            Scanner sc = new Scanner(System.in);
             op = sc.nextShort();
             System.out.println();
             switch(op){
@@ -104,10 +103,132 @@ class RDP{
                     }
                 }
 
-                case 4 -> {}
+                case 4 -> {
+                    menuSim();
+                }
+                case 5 -> {}
                 default -> System.out.println("Opción invalida");
             }
         }while(op!= 4);
+    }
+
+    void menuSim(){
+        int op = 0;
+        File[] archivos = null;
+        double[] epsilons = null;
+
+        do{
+            System.out.println("-- Menu simulacion --");
+            System.out.printf("1. %s\n2. %s\n3. %s\n4. %s\n", "Selección de archivos",
+                    "Seleccionar valores de ε", "Iniciar simulación", "Salir");
+            System.out.print("-- Ingrese la opción: ");
+            try {
+                op = sc.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("Ingrese un número válido...");
+                sc.nextLine();
+                op = 0;
+                continue;
+            }
+            System.out.println();
+
+            switch(op){
+                case 1 -> {
+                    File folder = new File(Paths.get("Files").toAbsolutePath().toString());
+                    File[] dir = folder.listFiles();
+
+                    if (!folder.isDirectory() || dir == null || dir.length == 0) {
+                        System.out.println("Error al buscar la carpeta 'Files' o está vacía");
+                    } else {
+                        Arrays.sort(dir);
+                        System.out.println("-- Archivos en el sistema. --");
+                        for (int i = 0; i < dir.length; i++) {
+                            System.out.println((i + 1) + ". " + dir[i].getName());
+                        }
+
+                        System.out.print("Formato: 1-2-3-...-n\nIngrese los archivos para simular: ");
+                        String[] temp = sc.next().split("-");
+
+                        List<File> sel = new ArrayList<>();
+                        for (String t : temp) {
+                            try {
+                                int ind = Integer.parseInt(t.trim()) - 1;
+                                if (ind < 0 || ind >= dir.length) {
+                                    System.out.println("Opción inválida ignorada: " + t);
+                                } else if (!sel.contains(dir[ind])) {
+                                    sel.add(dir[ind]);
+                                }
+                            } catch (NumberFormatException e) {
+                                System.out.println("Valor inválido ignorado: " + t);
+                            }
+                        }
+                        archivos = sel.toArray(new File[0]);
+                        System.out.println("Archivos seleccionados: " + archivos.length);
+                    }
+                    System.out.println();
+                }
+
+                case 2 -> {
+                    System.out.println("Formato: 0,01-0,1-1-2-...-n");
+                    System.out.print("Ingrese los valores de ε para simular: ");
+                    String[] temp = sc.next().split("-");
+
+                    List<Double> sel = new ArrayList<>();
+                    for (String t : temp) {
+                        try {
+                            double e = Double.parseDouble(t.trim().replace(',', '.'));
+                            if (e < 0) System.out.println("ε debe ser positivo, se ignora: " + t);
+                            else sel.add(e);
+                        } catch (NumberFormatException ex) {
+                            System.out.println("Valor inválido ignorado: " + t);
+                        }
+                    }
+                    epsilons = sel.stream().mapToDouble(Double::doubleValue).toArray();
+                    System.out.println("Valores de ε seleccionados: " + epsilons.length);
+                    System.out.println();
+                }
+
+                case 3 -> {
+                    if (archivos == null || archivos.length == 0) {
+                        System.out.println("Primero seleccione archivos (opción 1)");
+                    } else if (epsilons == null || epsilons.length == 0) {
+                        System.out.println("Primero seleccione valores de ε (opción 2)");
+                    } else {
+                        System.out.printf("%-20s %8s %12s %13s %12s %14s%n",
+                                "Archivo", "ε", "Originales", "Optimizados", "Eliminados", "Tiempo (ms)");
+
+                        for (File f : archivos) {
+                            try {
+                                point[] datos = fc.readData(f);
+                                if (datos == null || datos.length == 0) {
+                                    System.out.println(f.getName() + ": sin datos");
+                                    continue;
+                                }
+                                List<point> input = Arrays.asList(datos);
+
+                                for (double eps : epsilons) {
+                                    long ini = System.nanoTime();
+                                    List<point> out = alg(input, eps);
+                                    long fin = System.nanoTime();
+
+                                    int eliminados = datos.length - out.size();
+                                    double ms = (fin - ini) / 1_000_000.0;
+
+                                    System.out.printf("%-20s %8.4f %12d %13d %12d %14.3f%n",
+                                            f.getName(), eps, datos.length, out.size(), eliminados, ms);
+                                }
+                            } catch (IOException e) {
+                                System.out.println("Error al leer el archivo " + f.getName());
+                            }
+                        }
+                    }
+                    System.out.println();
+                }
+
+                case 4 -> {}
+                default -> System.out.println("Opción inválida");
+            }
+        } while (op != 4);
     }
 
     public static List<point> alg(List<point> points, double epsilon){
@@ -138,7 +259,6 @@ class RDP{
             return res;
         }
     }
-
     private static double distPerpendicular(point p0, point pn, point p ){
         double dx = pn.getX() - p0.getX();
         double dy = pn.getY() - p0.getY();
